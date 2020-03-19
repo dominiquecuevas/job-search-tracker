@@ -1,4 +1,18 @@
 import React from "react"
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+
+function Test() {
+    return (
+        <Link to={`/test/1`}>link 1</Link>
+    )
+}
+
+function TestDetails({ match }) {
+    console.log("match:", match)
+    return (
+        <h1>{match.params.id}</h1>
+    )
+}
 
 class App extends React.Component {
     constructor() {
@@ -16,7 +30,18 @@ class App extends React.Component {
     }
     render() {
         return (
-            <div><a onClick={this.getTime} href="#">testing App</a></div>
+            <Router>
+                <Switch>
+                    <Route exact path='/' 
+                            render={() => 
+                            <div>
+                                <a onClick={this.getTime} href="#">testing App</a><br />
+                                <Link to='/test'>test page</Link>
+                            </div>} />
+                    <Route exact path='/test' component={Test}/>
+                    <Route path='/test/:id' component={TestDetails}/>
+                </Switch>
+            </Router>
         )
     }
 }
