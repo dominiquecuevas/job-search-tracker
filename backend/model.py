@@ -16,6 +16,12 @@ class Application(db.Model):
     datetime_created = db.Column(db.DateTime, nullable=True)
 
 def seed():
+    # TODO: use javascript Date().getTime()
+    # future scope using chartjs use momentjs library
+        # now = moment() for client's locale time
+        # change format now.format('x') for timestamp in milliseconds
+        # or now.format('YYYY M D')
+    # use TIMESTAMP sqlalchemy type
     datetime_applied, datetime_created = datetime.now(), datetime.now()
     application = Application(datetime_applied=datetime_applied, referred_by="Anjelica", datetime_created=datetime_created)
     db.session.add(application)
