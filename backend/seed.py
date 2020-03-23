@@ -1,5 +1,5 @@
 from datetime import datetime
-from model import Application, Job, Company, JournalEntry, User, connect_db, db
+from model import Application, ApplicationStatus, Job, Company, JournalEntry, User, connect_db, db
 from server import app
 import pprint
 
@@ -36,11 +36,17 @@ def seed1():
     db.session.add(application)
     db.session.commit()
 
-    journalentry = JournalEntry(application_id=application.application_id,
+    application_status = ApplicationStatus(application_id=application.application_id,
+                                            status='Applied',
+                                            experience_rating='positive',
+                                            datetime_created=datetime_created)
+    db.session.add(application_status)
+
+    journal_entry = JournalEntry(application_id=application.application_id,
                             entry='This is a journal entry.',
                             datetime_created=datetime_created)
 
-    db.session.add(journalentry)
+    db.session.add(journal_entry)
     db.session.commit()
 
 def seed2():
@@ -74,20 +80,32 @@ def seed2():
     db.session.add(application)
     db.session.commit()
 
-    journalentry = JournalEntry(application_id=application.application_id,
+    application_status = ApplicationStatus(application_id=application.application_id,
+                                            status='Applied',
+                                            experience_rating='positive',
+                                            datetime_created=datetime_created)
+    db.session.add(application_status)
+
+    journal_entry = JournalEntry(application_id=application.application_id,
                             entry='Another journal entry.',
                             datetime_created=datetime_created)
 
-    db.session.add(journalentry)
+    db.session.add(journal_entry)
     db.session.commit()
 
 def seed3():
     """add journal entry to 1st application"""
-    journalentry = JournalEntry(application_id=1,
+    journal_entry = JournalEntry(application_id=1,
                                 entry='2nd journal entry to 1st application',
                                 datetime_created = datetime.now()
                                 )
-    db.session.add(journalentry)
+    db.session.add(journal_entry)
+
+    application_status = ApplicationStatus(application_id=Application.query.get(1).application_id,
+                                            status='Phone Interviewed',
+                                            experience_rating='neutral',
+                                            datetime_created=datetime.now())
+    db.session.add(application_status)
     db.session.commit()
 
 def query_seeds():
@@ -113,13 +131,29 @@ def query_seeds():
                             .filter(JournalEntry.entry.ilike('%another%')) \
                             .all()
 
+    # get all application statuses for an application
+    application_statuses = db.session.query(ApplicationStatus.datetime_created, 
+                                            ApplicationStatus.status,
+                                            Application.datetime_applied,
+                                            Company.company_id) \
+                                    .join(Application, Job, Company) \
+                                    .order_by(ApplicationStatus.application_id,
+                                                ApplicationStatus.datetime_created) \
+                                    .all()
+
     return pprint.pprint(
                     {'jobs': jobs,
                     'company': company,
                     'users': users,
-                    'companies': companies
+                    'companies': companies,
+                    'application_statuses': application_statuses,
                     }
     )
+
+def seed():
+    seed1()
+    seed2()
+    seed3()
 
 if __name__ == "__main__":
     connect_db(app)

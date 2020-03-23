@@ -26,18 +26,34 @@ class Application(db.Model):
     job = db.relationship('Job', 
                             backref='applications')
 
+    # TODO: look into cascade deletion
+
+class ApplicationStatus(db.Model):
+    """logs changes in Application status"""
+
+    __tablename__ = 'application_statuses'
+
+    status_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
+    status = db.Column(db.VARCHAR(length=1000), nullable=True)
+    experience_rating = db.Column(db.VARCHAR(length=1000), nullable=True)
+    datetime_created = db.Column(db.DateTime, nullable=False)
+
+    application = db.relationship('Application',
+                                    backref='application_statuses')
+
 class JournalEntry(db.Model):
     """table for journal entries for an application"""
 
-    __tablename__ = 'journalentries'
+    __tablename__ = 'journal_entries'
 
-    journalentry_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    journal_entry_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
     entry = db.Column(db.VARCHAR, nullable=False)
     datetime_created = db.Column(db.DateTime, nullable=False)
 
     application = db.relationship('Application',
-                                    backref='journalentries')
+                                    backref='journal_entries')
 
 class Job(db.Model):
     """Table of specific job posts"""
