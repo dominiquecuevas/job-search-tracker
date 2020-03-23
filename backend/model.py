@@ -99,10 +99,9 @@ class PointEntry(db.Model):
 
     point_entry_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
-    application_status_id = db.Column(db.Integer, db.ForeignKey('application_statuses.user_id'), nullable=True)
+    application_status_id = db.Column(db.Integer, db.ForeignKey('application_statuses.application_status_id'), nullable=True)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
-    point_entry_type = db.Column(db.VARCHAR(length=1000), nullable=True)
-    points = db.Column(db.Integer, default=0, nullable=True)
+    point_entry_type_id = db.Column(db.Integer, db.ForeignKey('point_entry_types.point_entry_type_id'), nullable=True)
     datetime_created = db.Column(db.DateTime, nullable=False)
 
     user = db.relationship('User',
@@ -111,6 +110,17 @@ class PointEntry(db.Model):
                                             backref='point_entries')
     application = db.relationship('Application',
                                     backref='point_entries')
+    point_entry_type = db.relationship('PointEntryType',
+                                        backref='point_entries')
+
+class PointEntryType(db.Model):
+    """Different ways to earn points"""
+
+    __tablename__ = 'point_entry_types'
+
+    point_entry_type_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    point_entry_type = db.Column(db.VARCHAR(length=1000), nullable=True)
+    points = db.Column(db.Integer, nullable=True)
 
 class Badge(db.Model):
     """Table to log badges earned"""
@@ -119,8 +129,21 @@ class Badge(db.Model):
 
     badge_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
-    badge_type = db.Column(db.VARCHAR(length=1000), nullable=True)
+    badge_type_id = db.Column(db.Integer, db.ForeignKey('badge_types.badge_type_id'), nullable=True)
     datetime_created = db.Column(db.DateTime, nullable=False)
+
+    user = db.relationship('User',
+                            backref='badges')
+    badge_type = db.relationship('BadgeType',
+                                    backref='badges')
+
+class BadgeType(db.Model):
+    """Different ways to earn badges"""
+
+    __tablename__ = 'badge_types'
+
+    badge_type_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    badge_type = db.Column(db.VARCHAR(length=1000), nullable=True)
 
 def connect_db(app):
     """Configure and connect to psql after createdb database."""

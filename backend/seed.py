@@ -1,7 +1,32 @@
 from datetime import datetime
-from model import Application, ApplicationStatus, Job, Company, JournalEntry, User, connect_db, db
+from model import Application, ApplicationStatus, Job, Company, JournalEntry, \
+                    User, PointEntry, PointEntryType, Badge, BadgeType, \
+                    connect_db, db
 from server import app
 import pprint
+
+def seed0():
+    """fill the 'types' tables"""
+
+    # types of ways to earn points
+    point_type1 = PointEntryType(point_entry_type='Daily log-in',
+                            points=1)
+    point_type2 = PointEntryType(point_entry_type='Change application status',
+                            points=1)
+    point_type3 = PointEntryType(point_entry_type='Got referral',
+                            points=2)
+    point_type4 = PointEntryType(point_entry_type='Applied to 5 jobs in a day',
+                            points=5)
+    point_type5 = PointEntryType(point_entry_type='Sent Followup',
+                            points=1)
+    db.session.add_all([point_type1, point_type2, point_type3, point_type4, point_type5])
+    
+    # types of badges
+    badge_type1 = BadgeType(badge_type='Every 100 points')
+    badge_type2 = BadgeType(badge_type='Every 100 applications')
+    db.session.add_all([badge_type1, badge_type2])
+
+    db.session.commit()
 
 def seed1():
     datetime_applied, datetime_created = datetime.now(), datetime.now()
@@ -141,6 +166,8 @@ def query_seeds():
                                                 ApplicationStatus.datetime_created) \
                                     .all()
 
+    # TODO: queries for BadgeType & PointEntryType
+
     return pprint.pprint(
                     {'jobs': jobs,
                     'company': company,
@@ -151,6 +178,7 @@ def query_seeds():
     )
 
 def seed():
+    seed0()
     seed1()
     seed2()
     seed3()
