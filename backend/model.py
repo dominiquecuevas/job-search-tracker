@@ -42,6 +42,9 @@ class ApplicationStatus(db.Model):
 
     application = db.relationship('Application',
                                     backref='application_statuses')
+    point_entry = db.relationship('PointEntry',
+                                    back_populates='application_status', 
+                                    uselist=False)
 
 class JournalEntry(db.Model):
     """table for journal entries for an application"""
@@ -108,7 +111,8 @@ class PointEntry(db.Model):
     user = db.relationship('User',
                             backref='point_entries')
     application_status = db.relationship('ApplicationStatus',
-                                            backref='point_entries')
+                                            back_populates='point_entry', 
+                                            uselist=False)
     application = db.relationship('Application',
                                     backref='point_entries')
     point_entry_type = db.relationship('PointEntryType',
@@ -120,6 +124,7 @@ class PointEntryType(db.Model):
     __tablename__ = 'point_entry_types'
 
     point_entry_type_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    point_entry_type_code = db.Column(db.VARCHAR(length=3), nullable=True)
     point_entry_type = db.Column(db.VARCHAR(length=1000), nullable=True)
     points = db.Column(db.Integer, nullable=True)
 
@@ -146,21 +151,28 @@ class BadgeType(db.Model):
     badge_type_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     badge_type = db.Column(db.VARCHAR(length=1000), nullable=True)
 
-def example_data_1():
-    """fill the 'types' tables"""
+
+#########################################
+#         seed & sample data            #
+#########################################
+
+def seed_types():
+    """fill the PointEntryType & BadgeType tables"""
 
     # types of ways to earn points
-    point_type1 = PointEntryType(point_entry_type='Daily log-in',
+    point_type1 = PointEntryType(point_entry_type_code='dli',
+                            point_entry_type='Daily log-in',
                             points=1)
-    point_type2 = PointEntryType(point_entry_type='Change application status',
+    point_type2 = PointEntryType(point_entry_type_code='uas', 
+                            point_entry_type='Update application status',
                             points=1)
-    point_type3 = PointEntryType(point_entry_type='Got referral',
+    point_type3 = PointEntryType(point_entry_type_code='gar',
+                            point_entry_type='Got a referral',
                             points=2)
-    point_type4 = PointEntryType(point_entry_type='Applied to 5 jobs in a day',
+    point_type4 = PointEntryType(point_entry_type_code='a5j', 
+                            point_entry_type='Applied to 5 jobs in a day',
                             points=5)
-    point_type5 = PointEntryType(point_entry_type='Sent Followup',
-                            points=1)
-    db.session.add_all([point_type1, point_type2, point_type3, point_type4, point_type5])
+    db.session.add_all([point_type1, point_type2, point_type3, point_type4])
     
     # types of badges
     badge_type1 = BadgeType(badge_type='Every 100 points')
@@ -169,7 +181,7 @@ def example_data_1():
 
     db.session.commit()
 
-def example_data_2():
+def example_data_1():
     datetime_applied, datetime_created = datetime.now(), datetime.now()
 
     user = User(email='email@email.com', 
@@ -207,6 +219,15 @@ def example_data_2():
                                             experience_rating='positive',
                                             datetime_created=datetime_created)
     db.session.add(application_status)
+    db.session.commit()
+
+    point_entry_type = db.session.query(PointEntryType).filter(PointEntryType.point_entry_type_code=='uas').first()
+    point_entry = PointEntry(application_status_id = application_status.application_status_id,
+                            datetime_created=datetime_created)
+    point_entry_type.point_entries.append(point_entry)
+    user.point_entries.append(point_entry)
+    db.session.add(point_entry)
+
 
     journal_entry = JournalEntry(application_id=application.application_id,
                             entry='This is a journal entry.',
@@ -215,7 +236,7 @@ def example_data_2():
     db.session.add(journal_entry)
     db.session.commit()
 
-def example_data_3():
+def example_data_2():
     """add application"""
     datetime_applied, datetime_created = datetime.now(), datetime.now()
 
@@ -260,7 +281,7 @@ def example_data_3():
     db.session.add(journal_entry)
     db.session.commit()
 
-def example_data_4():
+def example_data_3():
     """add journal entry and new application status to 1st application"""
     journal_entry = JournalEntry(application_id=1,
                                 entry='2nd journal entry to 1st application',
@@ -274,6 +295,12 @@ def example_data_4():
                                             datetime_created=datetime.now())
     db.session.add(application_status)
     db.session.commit()
+
+def seed():
+    seed_types()
+    example_data_1()
+    example_data_2()
+    example_data_3()
 
 def connect_to_db(app, db_uri='postgresql:///jobs'):
     """Configure and connect to psql after createdb database."""
