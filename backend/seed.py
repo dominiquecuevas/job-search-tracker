@@ -1,7 +1,7 @@
 from datetime import datetime
 from model import Application, ApplicationStatus, Job, Company, JournalEntry, \
                     User, PointEntry, PointEntryType, Badge, BadgeType, \
-                    connect_db, db
+                    connect_to_db, db
 from server import app
 import pprint
 
@@ -184,5 +184,5 @@ def seed():
     seed3()
 
 if __name__ == "__main__":
-    connect_db(app)
+    connect_to_db(app)
     db.create_all()

@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -145,10 +146,139 @@ class BadgeType(db.Model):
     badge_type_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     badge_type = db.Column(db.VARCHAR(length=1000), nullable=True)
 
-def connect_db(app):
+def example_data_1():
+    """fill the 'types' tables"""
+
+    # types of ways to earn points
+    point_type1 = PointEntryType(point_entry_type='Daily log-in',
+                            points=1)
+    point_type2 = PointEntryType(point_entry_type='Change application status',
+                            points=1)
+    point_type3 = PointEntryType(point_entry_type='Got referral',
+                            points=2)
+    point_type4 = PointEntryType(point_entry_type='Applied to 5 jobs in a day',
+                            points=5)
+    point_type5 = PointEntryType(point_entry_type='Sent Followup',
+                            points=1)
+    db.session.add_all([point_type1, point_type2, point_type3, point_type4, point_type5])
+    
+    # types of badges
+    badge_type1 = BadgeType(badge_type='Every 100 points')
+    badge_type2 = BadgeType(badge_type='Every 100 applications')
+    db.session.add_all([badge_type1, badge_type2])
+
+    db.session.commit()
+
+def example_data_2():
+    datetime_applied, datetime_created = datetime.now(), datetime.now()
+
+    user = User(email='email@email.com', 
+                password='password', 
+                first_name='First', 
+                last_name='Last', 
+                datetime_created=datetime_created)
+    db.session.add(user)
+
+    company = Company(company_name='My Company', 
+                        website='www.mycompany.com', 
+                        datetime_created=datetime_created)
+    db.session.add(company)
+    db.session.commit()
+
+    job = Job(company_id=company.company_id,
+                title='Software Engineer',
+                link='www.linkedin.com/mycompany/software-engineer',
+                source='LinkedIn',
+                datetime_created=datetime_created
+                )
+    db.session.add(job)
+    db.session.commit()
+
+    application = Application(user_id=user.user_id,
+                                job_id=job.job_id,
+                                datetime_applied=datetime_applied, 
+                                referred_by="Anjelica", 
+                                datetime_created=datetime_created)
+    db.session.add(application)
+    db.session.commit()
+
+    application_status = ApplicationStatus(application_id=application.application_id,
+                                            status='Applied',
+                                            experience_rating='positive',
+                                            datetime_created=datetime_created)
+    db.session.add(application_status)
+
+    journal_entry = JournalEntry(application_id=application.application_id,
+                            entry='This is a journal entry.',
+                            datetime_created=datetime_created)
+
+    db.session.add(journal_entry)
+    db.session.commit()
+
+def example_data_3():
+    """add application"""
+    datetime_applied, datetime_created = datetime.now(), datetime.now()
+
+    user = User.query.first()
+
+    company = db.session.query(Company).filter(Company.company_name.like('%Another Company%')).first()
+    if not company:
+        company = Company(company_name='Another Company', 
+                            website='www.anothercompany.com', 
+                            datetime_created=datetime_created)
+    db.session.add(company)
+    db.session.commit()
+
+    job = db.session.query(Job).filter(Job.company_id==company.company_id, Job.title.like('%Software Engineer%')).first()
+    if not job:
+        job = Job(company_id=company.company_id,
+                    title='Software Engineer',
+                    link='www.linkedin.com/anothercompany/software-engineer',
+                    source='Glassdoor',
+                    datetime_created=datetime_created)
+    db.session.add(job)
+    db.session.commit()
+
+    application = Application(user_id=user.user_id,
+                                job_id=job.job_id,
+                                datetime_applied=datetime_applied, 
+                                referred_by="Anjelica", 
+                                datetime_created=datetime_created)
+    db.session.add(application)
+    db.session.commit()
+
+    application_status = ApplicationStatus(application_id=application.application_id,
+                                            status='Applied',
+                                            experience_rating='positive',
+                                            datetime_created=datetime_created)
+    db.session.add(application_status)
+
+    journal_entry = JournalEntry(application_id=application.application_id,
+                            entry='Another journal entry.',
+                            datetime_created=datetime_created)
+
+    db.session.add(journal_entry)
+    db.session.commit()
+
+def example_data_4():
+    """add journal entry and new application status to 1st application"""
+    journal_entry = JournalEntry(application_id=1,
+                                entry='2nd journal entry to 1st application',
+                                datetime_created = datetime.now()
+                                )
+    db.session.add(journal_entry)
+
+    application_status = ApplicationStatus(application_id=Application.query.get(1).application_id,
+                                            status='Phone Interviewed',
+                                            experience_rating='neutral',
+                                            datetime_created=datetime.now())
+    db.session.add(application_status)
+    db.session.commit()
+
+def connect_to_db(app, db_uri='postgresql:///jobs'):
     """Configure and connect to psql after createdb database."""
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///jobs'
+    app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SQLALCHEMY_ECHO'] = False
     db.app = app
@@ -156,6 +286,6 @@ def connect_db(app):
 
 if __name__ == '__main__':
     from server import app
-    connect_db(app)
+    connect_to_db(app)
     db.create_all()
     print("CONNECTED TO DATABASE")
