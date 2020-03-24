@@ -102,14 +102,11 @@ class PointEntry(db.Model):
     __tablename__ = 'point_entries'
 
     point_entry_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
     application_status_id = db.Column(db.Integer, db.ForeignKey('application_statuses.application_status_id'), nullable=True)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
     point_entry_type_id = db.Column(db.Integer, db.ForeignKey('point_entry_types.point_entry_type_id'), nullable=True)
     datetime_created = db.Column(db.DateTime, nullable=False)
 
-    user = db.relationship('User',
-                            backref='point_entries')
     application_status = db.relationship('ApplicationStatus',
                                             back_populates='point_entry', 
                                             uselist=False)
@@ -225,7 +222,6 @@ def example_data_1():
     point_entry = PointEntry(application_status_id = application_status.application_status_id,
                             datetime_created=datetime_created)
     point_entry_type.point_entries.append(point_entry)
-    user.point_entries.append(point_entry)
     db.session.add(point_entry)
 
 
