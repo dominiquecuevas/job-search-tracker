@@ -14,13 +14,7 @@ class Application(db.Model):
     datetime_applied = db.Column(db.DateTime, nullable=True)
     referred_by = db.Column(db.VARCHAR(length=1000), nullable=True)
     datetime_created = db.Column(db.DateTime, nullable=False)
-    # TODO: # react-chartjs-2
-    # using moment.js library, store as string w/ method .toString()
-    # let time = moment()
-    # time.toString() -> "Sat Mar 21 2020 20:37:27 GMT-0700"
-    # parse in python: date1 = datetime.strptime("Sat Mar 21 2020 20:37:27 GMT-0700", "%a %b %d %Y %X %Z%z")
-    # date1.strftime("%a %b %d %Y %X %Z%z") -> 'Sat Mar 21 2020 20:37:27 GMT-0700'
-    # use TIMESTAMP sqlalchemy type
+    # TODO: timezone column. get tz from client browser, convert between UTC and locale tz
 
     user = db.relationship('User', 
                             backref='applications')
