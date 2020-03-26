@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, session
+from flask import Flask, jsonify, session, request
 import time
 from model import db, connect_to_db, \
                     Application, ApplicationStatus, Job, Company, JournalEntry, \
@@ -15,9 +15,13 @@ def homepage():
 
 @app.route('/login', methods=['POST'])
 def log_in_user():
-    email = request.form['email']
-    password = request.form['password']
-    user = db.session.query(User)
+    # email = request.form['email']
+    # password = request.form['password']
+    # user = db.session.query(User)
+    email = request.form.get('email')
+    password = request.form.get('password')
+    print('name, passord:', email, password)
+    # return jsonify({'name': name})
 
 @app.route('/companies')
 def companies():
