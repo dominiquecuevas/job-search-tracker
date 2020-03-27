@@ -32,13 +32,13 @@ class App extends React.Component {
     render() {
         return (
             <Router>
+                <Login />
                 <Switch>
                     <Route exact path='/' 
                             render={() => 
                             <div>
                                 <a onClick={this.getTime} href="#">testing App</a><br />
                                 <Link to='/test'>test page</Link>
-                                <Login />
                             </div>} />
                     <Route exact path='/test' component={Test}/>
                     <Route path='/test/:id' component={TestDetails}/>

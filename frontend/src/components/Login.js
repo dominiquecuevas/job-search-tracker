@@ -13,16 +13,21 @@ function Login() {
         }
     }
     function handleSubmit(evt) {
+        evt.preventDefault();
+        console.log('before fetch');
         const formData = new FormData(document.getElementById('login-form'));
-        console.log(formData);
-        fetch('/login', 
+        fetch('http://localhost:5000/login', 
             {method: 'POST',
-            body: formData
-        })
+            body: formData,
+            mode: 'no-cors'})
+            .then(console.log('logged in'))
+            ;
+        // TODO: research how to get response from server ^^
+        console.log('after fetch');
     }
     
     return (
-        <form onSubmit={handleSubmit} id="login-form">
+        <form onSubmit={handleSubmit} id="login-form" method="POST">
             Email <input type="text" value={email} onChange={handleChange} name='email' />
             Password <input type="password" value={password} onChange={handleChange} name='password' />
             <input type="submit" />

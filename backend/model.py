@@ -1,7 +1,10 @@
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_login import UserMixin
+from flask_bcrypt import Bcrypt
 
 db = SQLAlchemy()
+bcrypt = Bcrypt()
 
 class Application(db.Model):
     """table of users' applications"""
@@ -77,19 +80,29 @@ class Company(db.Model):
     website = db.Column(db.VARCHAR(length=1000), nullable=False)
     datetime_created = db.Column(db.DateTime, nullable=False)
 
-class User(db.Model):
+class User(db.Model, UserMixin):
     """Table of users"""
 
     __tablename__ = 'users'
 
     user_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     email = db.Column(db.VARCHAR(length=1000), nullable=False)
-    password = db.Column(db.VARCHAR(length=20), nullable=False)
+    password = db.Column(db.LargeBinary, nullable=False)
     first_name = db.Column(db.VARCHAR, nullable=False)
     last_name = db.Column(db.VARCHAR, nullable = False)
     points_total = db.Column(db.Integer, nullable=False, default=0)
     datetime_created = db.Column(db.DateTime, nullable=False)
 
+    def __init__(self, email, password, first_name, last_name, datetime_created):
+        password = bcrypt.generate_password_hash(password)
+        super().__init__(email=email, password=password, first_name=first_name, last_name=last_name, datetime_created=datetime_created)
+    
+    def check_password(self, password):
+        return bcrypt.check_password_hash(self.password, password)
+    
+    def get_id(self):
+        return self.email
+        
 class PointEntry(db.Model):
     """Table to log points earned"""
 
