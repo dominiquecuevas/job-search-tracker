@@ -17,7 +17,6 @@ class Application(db.Model):
     datetime_applied = db.Column(db.DateTime, nullable=True)
     referred_by = db.Column(db.VARCHAR(length=1000), nullable=True)
     datetime_created = db.Column(db.DateTime, nullable=False)
-    # TODO: timezone column. get tz from client browser, convert between UTC and locale tz
 
     user = db.relationship('User', 
                             backref='applications')
@@ -102,6 +101,8 @@ class User(db.Model, UserMixin):
     
     def get_id(self):
         return self.email
+
+    # TODO: timezone column. get tz from client browser, convert between UTC and locale tz
         
 class PointEntry(db.Model):
     """Table to log points earned"""

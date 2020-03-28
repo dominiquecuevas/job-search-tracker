@@ -46,7 +46,23 @@ def companies():
 @app.route('/application-statuses')
 @login_required
 def application_statuses():
-    pass
+    applications = []
+    for application in current_user.applications:
+        applications.append({'application_id': application.application_id,
+                                'job': application.job.title,
+                                'company': application.job.title,
+                                'link': application.job.link,
+                                'source': application.job.source,
+                                'datetime_created': str(application.job.source),
+                                'application_statuses': [{'application_status_id': status.application_status_id, 
+                                                            'status': status.status,
+                                                            'experience_rating': status.experience_rating,
+                                                            'datetime_created': str(status.datetime_created)} 
+                                                        for status in application.application_statuses]
+        })
+
+
+    return jsonify({'applications': applications})
 
 if __name__ == "__main__":
     connect_to_db(app)
