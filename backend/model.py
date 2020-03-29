@@ -16,7 +16,7 @@ class Application(db.Model):
     job_id = db. Column(db.Integer, db.ForeignKey('jobs.job_id'), nullable=True)
     datetime_applied = db.Column(db.DateTime, nullable=True)
     referred_by = db.Column(db.VARCHAR(length=1000), nullable=True)
-    datetime_created = db.Column(db.DateTime, nullable=False)
+    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
     user = db.relationship('User', 
                             backref='applications')
@@ -34,7 +34,7 @@ class ApplicationStatus(db.Model):
     application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
     status = db.Column(db.VARCHAR(length=1000), nullable=True)
     experience_rating = db.Column(db.VARCHAR(length=1000), nullable=True)
-    datetime_created = db.Column(db.DateTime, nullable=False)
+    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
     application = db.relationship('Application',
                                     backref='application_statuses')
@@ -50,7 +50,7 @@ class JournalEntry(db.Model):
     journal_entry_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
     entry = db.Column(db.VARCHAR, nullable=False)
-    datetime_created = db.Column(db.DateTime, nullable=False)
+    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
     application = db.relationship('Application',
                                     backref='journal_entries')
@@ -65,7 +65,7 @@ class Job(db.Model):
     title = db.Column(db.VARCHAR(length=1000), nullable=False)
     link = db.Column(db.VARCHAR(length=1000), nullable=False)
     source = db.Column(db.VARCHAR(length=1000), nullable=False)
-    datetime_created = db.Column(db.DateTime, nullable=False)
+    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
     company = db.relationship('Company', 
                                 backref='jobs')
@@ -77,7 +77,7 @@ class Company(db.Model):
     company_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     company_name = db.Column(db.VARCHAR(length=1000), nullable=False)
     website = db.Column(db.VARCHAR(length=1000), nullable=False)
-    datetime_created = db.Column(db.DateTime, nullable=False)
+    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
 class User(db.Model, UserMixin):
     """Table of users"""
@@ -90,11 +90,11 @@ class User(db.Model, UserMixin):
     first_name = db.Column(db.VARCHAR, nullable=False)
     last_name = db.Column(db.VARCHAR, nullable = False)
     points_total = db.Column(db.Integer, nullable=False, default=0)
-    datetime_created = db.Column(db.DateTime, nullable=False)
+    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
-    def __init__(self, email, password, first_name, last_name, datetime_created):
+    def __init__(self, email, password, first_name, last_name, datetime_created=datetime.now()):
         password = bcrypt.generate_password_hash(password)
-        super().__init__(email=email, password=password, first_name=first_name, last_name=last_name, datetime_created=datetime_created)
+        super().__init__(email=email, password=password, first_name=first_name, last_name=last_name, datetime_created=datetime.now())
     
     def check_password(self, password):
         return bcrypt.check_password_hash(self.password, password)
@@ -113,7 +113,8 @@ class PointEntry(db.Model):
     application_status_id = db.Column(db.Integer, db.ForeignKey('application_statuses.application_status_id'), unique=True, nullable=True)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
     point_entry_type_id = db.Column(db.Integer, db.ForeignKey('point_entry_types.point_entry_type_id'), nullable=True)
-    datetime_created = db.Column(db.DateTime, nullable=False)
+    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
+    points = db.Column(db.Integer, nullable=True)
 
     application_status = db.relationship('ApplicationStatus',
                                             back_populates='point_entry', 
@@ -141,7 +142,7 @@ class Badge(db.Model):
     badge_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
     badge_type_id = db.Column(db.Integer, db.ForeignKey('badge_types.badge_type_id'), nullable=True)
-    datetime_created = db.Column(db.DateTime, nullable=False)
+    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
     user = db.relationship('User',
                             backref='badges')
@@ -187,70 +188,61 @@ def seed_types():
     db.session.commit()
 
 def example_data_1():
-    datetime_applied, datetime_created = datetime.now(), datetime.now()
-
     user = User(email='email@email.com', 
                 password='password', 
                 first_name='First', 
-                last_name='Last', 
-                datetime_created=datetime_created)
+                last_name='Last')
     db.session.add(user)
 
     company = Company(company_name='My Company', 
-                        website='www.mycompany.com', 
-                        datetime_created=datetime_created)
+                        website='www.mycompany.com')
     db.session.add(company)
     db.session.commit()
 
     job = Job(company_id=company.company_id,
                 title='Software Engineer',
                 link='www.linkedin.com/mycompany/software-engineer',
-                source='LinkedIn',
-                datetime_created=datetime_created
+                source='LinkedIn'
                 )
     db.session.add(job)
     db.session.commit()
 
     application = Application(user_id=user.user_id,
                                 job_id=job.job_id,
-                                datetime_applied=datetime_applied, 
-                                referred_by="Anjelica", 
-                                datetime_created=datetime_created)
+                                datetime_applied=datetime.now(), 
+                                referred_by="Anjelica")
     db.session.add(application)
     db.session.commit()
 
     application_status = ApplicationStatus(application_id=application.application_id,
                                             status='Applied',
-                                            experience_rating='positive',
-                                            datetime_created=datetime_created)
+                                            experience_rating='positive')
     db.session.add(application_status)
     db.session.commit()
 
     point_entry_type = db.session.query(PointEntryType).filter(PointEntryType.point_entry_type_code=='uas').first()
-    point_entry = PointEntry(datetime_created=datetime_created)
+    points = point_entry_type.points
+    point_entry = PointEntry(points=points)
     point_entry.application_status = application_status
     point_entry_type.point_entries.append(point_entry)
     db.session.add(point_entry)
 
 
     journal_entry = JournalEntry(application_id=application.application_id,
-                            entry='This is a journal entry.',
-                            datetime_created=datetime_created)
+                            entry='This is a journal entry.')
 
     db.session.add(journal_entry)
     db.session.commit()
 
 def example_data_2():
     """add application"""
-    datetime_applied, datetime_created = datetime.now(), datetime.now()
 
     user = User.query.first()
 
     company = db.session.query(Company).filter(Company.company_name.like('%Another Company%')).first()
     if not company:
         company = Company(company_name='Another Company', 
-                            website='www.anothercompany.com', 
-                            datetime_created=datetime_created)
+                            website='www.anothercompany.com')
     db.session.add(company)
     db.session.commit()
 
@@ -259,28 +251,24 @@ def example_data_2():
         job = Job(company_id=company.company_id,
                     title='Software Engineer',
                     link='www.linkedin.com/anothercompany/software-engineer',
-                    source='Glassdoor',
-                    datetime_created=datetime_created)
+                    source='Glassdoor')
     db.session.add(job)
     db.session.commit()
 
     application = Application(user_id=user.user_id,
                                 job_id=job.job_id,
-                                datetime_applied=datetime_applied, 
-                                referred_by="Anjelica", 
-                                datetime_created=datetime_created)
+                                datetime_applied=datetime.now(), 
+                                referred_by="Anjelica")
     db.session.add(application)
     db.session.commit()
 
     application_status = ApplicationStatus(application_id=application.application_id,
                                             status='Applied',
-                                            experience_rating='positive',
-                                            datetime_created=datetime_created)
+                                            experience_rating='positive')
     db.session.add(application_status)
 
     journal_entry = JournalEntry(application_id=application.application_id,
-                            entry='Another journal entry.',
-                            datetime_created=datetime_created)
+                            entry='Another journal entry.')
 
     db.session.add(journal_entry)
     db.session.commit()
@@ -288,23 +276,77 @@ def example_data_2():
 def example_data_3():
     """add journal entry and new application status to 1st application"""
     journal_entry = JournalEntry(application_id=1,
-                                entry='2nd journal entry to 1st application',
-                                datetime_created = datetime.now()
+                                entry='2nd journal entry to 1st application'
                                 )
     db.session.add(journal_entry)
 
     application_status = ApplicationStatus(application_id=Application.query.get(1).application_id,
                                             status='Phone Interviewed',
-                                            experience_rating='neutral',
-                                            datetime_created=datetime.now())
+                                            experience_rating='neutral')
     db.session.add(application_status)
     db.session.commit()
+
+def example_data_4():
+    """add new user and application"""
+    user = User(email='newemail@email.com', 
+                password='newpassword', 
+                first_name='newFirst', 
+                last_name='newLast')
+    db.session.add(user)
+    db.session.commit()
+
+    company = db.session.query(Company).filter(Company.company_name=='My Company').first()
+
+    job = db.session.query(Job).filter((Job.company_id==company.company_id) & (Job.title=='Software Engineer') & (Job.link=='www.linkedin.com/mycompany/software-engineer')).first()
+
+    application = Application(user_id=user.user_id,
+                                job_id=job.job_id,
+                                datetime_applied=datetime.now())
+    db.session.add(application)
+    db.session.commit()
+
+    application_status = ApplicationStatus(application_id=application.application_id,
+                                            status='Applied',
+                                            experience_rating='negative')
+    db.session.add(application_status)
+    db.session.commit()
+
+    point_entry_type = db.session.query(PointEntryType).filter(PointEntryType.point_entry_type_code=='uas').first()
+    points = point_entry_type.points
+    point_entry = PointEntry(points=points)
+    point_entry.application_status = application_status
+    point_entry_type.point_entries.append(point_entry)
+    db.session.add(point_entry)
+
+
+    journal_entry = JournalEntry(application_id=application.application_id,
+                            entry='This is a journal entry for another user.')
+
+    db.session.add(journal_entry)
+    db.session.commit()
+
+def example_data_5():
+    badge_type = db.session \
+        .query(BadgeType) \
+        .filter(BadgeType.badge_type.ilike('%100 points%')) \
+        .first()
+    user = User.query.get(1)
+    
+    badge = Badge()
+    badge_type.badges.append(badge)
+    user.badges.append(badge)
+
+    db.session.add(badge)
+    db.session.commit()
+
 
 def seed():
     seed_types()
     example_data_1()
     example_data_2()
     example_data_3()
+    example_data_4()
+    example_data_5()
 
 def connect_to_db(app, db_uri='postgresql:///jobs'):
     """Configure and connect to psql after createdb database."""
