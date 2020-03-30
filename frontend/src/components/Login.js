@@ -16,10 +16,9 @@ function Login() {
         evt.preventDefault();
         console.log('before fetch');
         const formData = new FormData(document.getElementById('login-form'));
-        fetch('http://localhost:5000/login', 
+        fetch('/login', 
             {method: 'POST',
-            body: formData,
-            mode: 'no-cors'})
+            body: formData,})
             .then(console.log('logged in'))
             ;
         // TODO: research how to get response from server ^^

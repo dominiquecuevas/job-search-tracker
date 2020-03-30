@@ -1,6 +1,7 @@
 import React from "react"
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import Login from './Login'
+import Applications from './Applications'
 
 function Test() {
     return (
@@ -44,6 +45,7 @@ class App extends React.Component {
                     <Route path='/test/:id' component={TestDetails}/>
 
                     {/* <Route exact path='login' component={Login}/> */}
+                    <Route exact path='/applications' component={Applications}/>
                 </Switch>
             </Router>
         )
