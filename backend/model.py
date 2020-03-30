@@ -1,5 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_login import UserMixin
 from flask_bcrypt import Bcrypt
 
@@ -22,6 +22,9 @@ class Application(db.Model):
                             backref='applications')
     job = db.relationship('Job', 
                             backref='applications')
+    application_statuses = db.relationship('ApplicationStatus',
+                            lazy='dynamic',
+                            back_populates='application')
 
     # TODO: look into cascade deletion
 
@@ -37,7 +40,7 @@ class ApplicationStatus(db.Model):
     datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
     application = db.relationship('Application',
-                                    backref='application_statuses')
+                                    back_populates='application_statuses')
     point_entry = db.relationship('PointEntry',
                                     back_populates='application_status', 
                                     uselist=False)
@@ -209,7 +212,6 @@ def example_data_1():
 
     application = Application(user_id=user.user_id,
                                 job_id=job.job_id,
-                                datetime_applied=datetime.now(), 
                                 referred_by="Anjelica")
     db.session.add(application)
     db.session.commit()
@@ -257,14 +259,15 @@ def example_data_2():
 
     application = Application(user_id=user.user_id,
                                 job_id=job.job_id,
-                                datetime_applied=datetime.now(), 
+                                datetime_applied=(datetime.now()+timedelta(days=5)), 
                                 referred_by="Anjelica")
     db.session.add(application)
     db.session.commit()
 
     application_status = ApplicationStatus(application_id=application.application_id,
                                             status='Applied',
-                                            experience_rating='positive')
+                                            experience_rating='positive',
+                                            datetime_created=(datetime.now()+timedelta(days=5)))
     db.session.add(application_status)
 
     journal_entry = JournalEntry(application_id=application.application_id,
@@ -282,7 +285,8 @@ def example_data_3():
 
     application_status = ApplicationStatus(application_id=Application.query.get(1).application_id,
                                             status='Phone Interviewed',
-                                            experience_rating='neutral')
+                                            experience_rating='neutral',
+                                            datetime_created=(datetime.now()+timedelta(days=14)))
     db.session.add(application_status)
     db.session.commit()
 
@@ -301,13 +305,15 @@ def example_data_4():
 
     application = Application(user_id=user.user_id,
                                 job_id=job.job_id,
-                                datetime_applied=datetime.now())
+                                datetime_applied=(datetime.now()+timedelta(days=30, hours=8)))
     db.session.add(application)
     db.session.commit()
 
     application_status = ApplicationStatus(application_id=application.application_id,
                                             status='Applied',
-                                            experience_rating='negative')
+                                            experience_rating='negative',
+                                            datetime_created=(datetime.now()+timedelta(days=30, hours=8)))
+
     db.session.add(application_status)
     db.session.commit()
 
