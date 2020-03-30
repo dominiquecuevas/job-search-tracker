@@ -45,8 +45,54 @@ def user():
         'points_total': user.points_total,
         'datetime_created': user.datetime_created,
         'applications': list(
-            map(lambda application: f'/application/{application.application_id}',
-            current_user.applications)
+            map(lambda application: {
+                'application_id': application.application_id,
+                'user_id': application.user_id,
+                'job': {
+                    'job_id': application.job.job_id,
+                    'company': {
+                        'company_id': application.job.company.company_id,
+                        'company_name': application.job.company.company_name,
+                        'website': application.job.company.website,
+                        'datetime_created': application.job.company.datetime_created,
+                    },
+                    'title': application.job.title,
+                    'link': application.job.link,
+                    'source': application.job.source,
+                    'datetime_created': application.job.datetime_created,
+                },
+                'datetime_applied': application.datetime_applied,
+                'referred_by': application.referred_by,
+                'datetime_created': application.datetime_created,
+                'application_statuses': list(
+                    map(lambda application_status: {
+                        'application_status_id': application_status.application_status_id,
+                        'application_id': application_status.application_id,
+                        'status': application_status.status,
+                        'experience_rating': application_status.experience_rating,
+                        'datetime_created': application_status.datetime_created,
+                        'point_entry': {
+                            'point_entry_id': application_status.point_entry.point_entry_id,
+                            'application_status_id': application_status.point_entry.point_entry_id,
+                            'application_id': application_status.point_entry.application_id,
+                            'point_entry_type': application_status.point_entry.point_entry_type.point_entry_type,
+                            'point_entry_type_code': application_status.point_entry.point_entry_type.point_entry_type_code,
+                        } if application_status.point_entry else None,
+                    }, application.application_statuses.order_by(ApplicationStatus.datetime_created.desc()).all())
+                    # }, db.session.query(ApplicationStatus) \
+                    #     .filter(ApplicationStatus.application==application) \
+                    #     .order_by(ApplicationStatus.datetime_created.desc()) \
+                    #     .all())
+                ),
+                'journal_entries': list(
+                    map(lambda journal_entry: {
+                        'journal_entry_id': journal_entry.journal_entry_id,
+                        'application_id': journal_entry.application_id,
+                        'entry': journal_entry.entry,
+                        'datetime_created': journal_entry.datetime_created,
+                    }, application.journal_entries)
+                )
+            }, user.applications)
         )
     })
 
@@ -54,26 +100,29 @@ def user():
 @login_required
 def get_application(application_id):
     # TODO: try and except for application_id not associated to current_user
-    application = db.session \
-        .query(Application) \
-        .filter((Application.user==current_user) &
-            (Application.application_id==application_id)) \
-        .one()
-    return jsonify({
-        'application_id': application.application_id,
-        'job': f'/job/{application.job_id}',
-        'datetime_applied': application.datetime_created,
-        'referred_by': application.referred_by,
-        'datetime_created': application.datetime_created,
-        'application_statuses': list(
-            map(lambda application_status: f'/application_status/{application_status.application_status_id}', 
-            application.application_statuses)
-        ),
-        'journal_entries': list(
-            map(lambda journal_entry: f'/journal_entry/{journal_entry.journal_entry_id}', 
-            application.journal_entries)
-        )
-    })
+    try:
+        application = db.session \
+            .query(Application) \
+            .filter((Application.user==current_user) &
+                (Application.application_id==application_id)) \
+            .one()
+        return jsonify({
+            'application_id': application.application_id,
+            'job': f'/job/{application.job_id}',
+            'datetime_applied': application.datetime_created,
+            'referred_by': application.referred_by,
+            'datetime_created': application.datetime_created,
+            'application_statuses': list(
+                map(lambda application_status: f'/application_status/{application_status.application_status_id}', 
+                application.application_statuses.all())
+            ),
+            'journal_entries': list(
+                map(lambda journal_entry: f'/journal_entry/{journal_entry.journal_entry_id}', 
+                application.journal_entries)
+            )
+        })
+    except:
+        return ''
 
 @app.route('/application_status/<int:application_status_id>')
 @login_required
