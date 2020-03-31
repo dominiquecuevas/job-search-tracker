@@ -198,13 +198,13 @@ def example_data_1():
     db.session.add(user)
 
     company = Company(company_name='My Company', 
-                        website='www.mycompany.com')
+                        website='https://www.mycompany.com')
     db.session.add(company)
     db.session.commit()
 
     job = Job(company_id=company.company_id,
                 title='Software Engineer',
-                link='www.linkedin.com/mycompany/software-engineer',
+                link='https://www.linkedin.com/mycompany/software-engineer',
                 source='LinkedIn'
                 )
     db.session.add(job)
@@ -241,20 +241,20 @@ def example_data_2():
 
     user = User.query.first()
 
-    company = db.session.query(Company).filter(Company.company_name.like('%Another Company%')).first()
+    company = db.session.query(Company).filter(Company.company_name.ilike('%Another Company%')).first()
     if not company:
         company = Company(company_name='Another Company', 
-                            website='www.anothercompany.com')
-    db.session.add(company)
+                            website='https://www.anothercompany.com')
+        db.session.add(company)
     db.session.commit()
 
     job = db.session.query(Job).filter(Job.company_id==company.company_id, Job.title.like('%Software Engineer%')).first()
     if not job:
         job = Job(company_id=company.company_id,
                     title='Software Engineer',
-                    link='www.linkedin.com/anothercompany/software-engineer',
+                    link='https://www.linkedin.com/anothercompany/software-engineer',
                     source='Glassdoor')
-    db.session.add(job)
+        db.session.add(job)
     db.session.commit()
 
     application = Application(user_id=user.user_id,
@@ -301,7 +301,7 @@ def example_data_4():
 
     company = db.session.query(Company).filter(Company.company_name=='My Company').first()
 
-    job = db.session.query(Job).filter((Job.company_id==company.company_id) & (Job.title=='Software Engineer') & (Job.link=='www.linkedin.com/mycompany/software-engineer')).first()
+    job = db.session.query(Job).filter((Job.company_id==company.company_id) & (Job.title=='Software Engineer') & (Job.link=='https://www.linkedin.com/mycompany/software-engineer')).first()
 
     application = Application(user_id=user.user_id,
                                 job_id=job.job_id,
