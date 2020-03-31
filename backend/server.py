@@ -77,12 +77,8 @@ def user():
                             'application_id': application_status.point_entry.application_id,
                             'point_entry_type': application_status.point_entry.point_entry_type.point_entry_type,
                             'point_entry_type_code': application_status.point_entry.point_entry_type.point_entry_type_code,
-                        } if application_status.point_entry else None,
+                        } if application_status.point_entry else {},
                     }, application.application_statuses.order_by(ApplicationStatus.datetime_created.desc()).all())
-                    # }, db.session.query(ApplicationStatus) \
-                    #     .filter(ApplicationStatus.application==application) \
-                    #     .order_by(ApplicationStatus.datetime_created.desc()) \
-                    #     .all())
                 ),
                 'journal_entries': list(
                     map(lambda journal_entry: {
