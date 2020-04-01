@@ -1,6 +1,6 @@
 from unittest import TestCase
 from server import app
-from model import connect_to_db, db, seed, User
+from model import connect_to_db, db, seed, User, Company, Job
 
 class FlaskTestsDatabase(TestCase):
 
@@ -61,6 +61,38 @@ class FlaskTestsDatabase(TestCase):
     def test_badge_type(self):
         result = self.client.get('/badge_type/1')
         self.assertIn(b'100 points', result.data)
+
+    def test_post_application(self):
+        # new application with existing company and new job
+        result = self.client.post('/new-application', 
+            data={'company_name': 'My Company',
+                'website': 'https://www.mycompany.com',
+                'title': 'Fullstack Engineer',
+                'link': 'https://glassdoor.com/newcompany/fullstackengineer',
+                'source': 'Glassdoor',
+                'status': 'Applied',
+            },
+            follow_redirects=True
+        )
+        self.assertIn(b'My Company', result.data)
+        num_companies = len(Company.query.all())
+        self.assertEqual(num_companies, 2)
+
+        # new application with existing company and job
+        result = self.client.post('/new-application', 
+            data={'company_name': 'Another Company',
+                'website': 'https://www.anothercompany.com',
+                'title': 'Software Engineer',
+                'link': 'https://www.linkedin.com/anothercompany/software-engineer',
+                'source': 'Glassdoor',
+                'status': 'Applied',
+            },
+            follow_redirects=True
+        )
+        self.assertIn(b'Another Company', result.data)
+        num_jobs = len(Job.query.all())
+        self.assertEqual(num_jobs, 3)
+
 
 
 if __name__ == "__main__":
