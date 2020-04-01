@@ -2,6 +2,7 @@ import React from "react"
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import Login from './Login'
 import Applications from './Applications'
+import ApplicationInput from './ApplicationInput'
 
 function Test() {
     return (
@@ -35,17 +36,22 @@ class App extends React.Component {
             <Router>
                 <Login />
                 <Switch>
-                    <Route exact path='/' 
+                    {/* <Route exact path='/' 
                             render={() => 
                             <div>
                                 <a onClick={this.getTime} href="#">testing App</a><br />
                                 <Link to='/test'>test page</Link>
                             </div>} />
                     <Route exact path='/test' component={Test}/>
-                    <Route path='/test/:id' component={TestDetails}/>
-
-                    {/* <Route exact path='login' component={Login}/> */}
-                    <Route exact path='/applications' component={Applications}/>
+                    <Route path='/test/:id' component={TestDetails}/> */}
+                    <Route exact path='/applications' 
+                        render={() =>
+                            <div>                                
+                                <ApplicationInput />
+                                <Applications />
+                            </div>}
+                        // component={Applications}/>
+                    />
                 </Switch>
             </Router>
         )
