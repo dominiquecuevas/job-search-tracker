@@ -1,5 +1,6 @@
 import React from "react"
 import {useState} from "react"
+import Alert from "react-bootstrap/Alert"
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -26,11 +27,26 @@ function Login() {
     }
     
     return (
-        <form onSubmit={handleSubmit} id="login-form" method="POST">
-            Email <input type="text" value={email} onChange={handleChange} name='email' />
-            Password <input type="password" value={password} onChange={handleChange} name='password' />
-            <input type="submit" />
-        </form>
+        <div>
+            <form onSubmit={handleSubmit} id="login-form" method="POST">
+                Email <input type="text" value={email} onChange={handleChange} name='email' />
+                Password <input type="password" value={password} onChange={handleChange} name='password' />
+                <input type="submit" />
+            </form>
+            {/* <Alert variant="success">
+                <Alert.Heading>Hey, nice to see you</Alert.Heading>
+                <p>
+                    Aww yeah, you successfully read this important alert message. This example
+                    text is going to run a bit longer so that you can see how spacing within an
+                    alert works with this kind of content.
+                </p>
+                <hr />
+                <p className="mb-0">
+                    Whenever you need to, be sure to use margin utilities to keep things nice
+                    and tidy.
+                </p>
+            </Alert> */}
+        </div>
     )
 }
 
