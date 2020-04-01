@@ -13,12 +13,17 @@ function Applications() {
             setApplications(
                 applications_array.map(function(application) {
                     return (
-                        <details>
+                        <details key={application.application_id}>
                             <summary>{application.job.title} - {application.job.company.company_name}</summary>
                             <p>Applied: {Date(application.datetime_applied)}</p>
-                            <p>Status: {application.application_statuses[0].status}</p>
+                            <details>
+                                <summary>{application.application_statuses[0].datetime_created} - {application.application_statuses[0].status}</summary>
+                                {application.application_statuses.length > 1 && 
+                                application.application_statuses.slice(1).map((application_status) => 
+                                <p key={application_status.application_status_id}>{application_status.datetime_created} - {application_status.status}</p>)}
+                            </details>
                             <p>Link: <a 
-                                href={`https://${application.job.link}`}
+                                href={application.job.link}
                                 target='_blank'>{application.job.link}</a></p>
                             <p>Source: {application.job.source}</p>
                             <p>Referred by: {application.referred_by}</p>
