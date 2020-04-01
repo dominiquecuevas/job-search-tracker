@@ -3,7 +3,7 @@ import time
 from model import db, connect_to_db, \
                     Application, ApplicationStatus, Job, Company, JournalEntry, \
                     User, PointEntry, PointEntryType, Badge, BadgeType
-from flask_login import LoginManager, login_user, login_required, current_user
+from flask_login import LoginManager, login_user, login_required, current_user, logout_user
 
 app = Flask(__name__)
 app.secret_key = 'yliwmhd'
@@ -32,6 +32,64 @@ def log_in_user():
     else:
         flash('Your email or password was incorrect')
     # return redirect('/')
+
+@app.route('/new-application', methods=['POST'])
+@login_required
+def new_application():
+    # company attributes
+    company_name = request.form.get('company_name')
+    website = request.form.get('website')
+    # job attributes
+    title = request.form.get('title')
+    link = request.form.get('link')
+    source = request.form.get('source')
+    # application status attributes
+    status = request.form.get('status')
+
+    application = Application()
+    db.session.add(application)
+
+    company = db.session.query(Company) \
+        .filter((Company.company_name==company_name) & (Company.website==website)) \
+        .first()
+    if not company:
+        company = Company(company_name=company_name,
+            website=website)
+        db.session.add(company)
+        db.session.commit()
+    
+    job = db.session \
+        .query(Job) \
+        .filter(Job.title==title, Job.link==link, Job.source==source, Job.company==company) \
+        .first()
+    if not job:
+        job = Job(title=title, link=link, source=source)
+        db.session.add(job)
+        company.jobs.append(job)
+        db.session.commit()
+    
+    application_status = ApplicationStatus(status=status)
+    db.session.add(application_status)
+
+    current_user.applications.append(application)
+    job.applications.append(application)
+    application.application_statuses.append(application_status)
+    db.session.commit()
+
+    return jsonify({
+        'application_id': application.application_id,
+        'title': job.title,
+        'company_name': company.company_name,
+        'status': application_status.status,
+    })
+    
+    
+
+@app.route('/logout')
+@login_required
+def log_out_user():
+    logout_user()
+    return 'logged out'
 
 @app.route('/user')
 @login_required
@@ -167,6 +225,16 @@ def get_job(job_id):
         'source': job.source,
         'datetime_created': job.datetime_created,
     })
+
+@app.route('/companies')
+@login_required
+def get_companies():
+    return jsonify(len(Company.query.all()))
+
+@app.route('/jobs')
+@login_required
+def get_jobs():
+    return jsonify(len(Job.query.all()))
 
 @app.route('/company/<int:company_id>')
 @login_required
