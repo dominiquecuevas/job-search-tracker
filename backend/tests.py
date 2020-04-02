@@ -84,7 +84,7 @@ class FlaskTestsDatabase(TestCase):
                 'website': 'https://www.anothercompany.com',
                 'title': 'Software Engineer',
                 'link': 'https://www.linkedin.com/anothercompany/software-engineer',
-                'source': 'Glassdoor',
+                'source': 'LinkedIn',
                 'status': 'Applied',
             },
             follow_redirects=True
