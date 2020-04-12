@@ -3,14 +3,15 @@ import {useState, useEffect} from 'react'
 import Applications from './Applications'
 
 function ApplicationForm() {
-    const [inputs, setInput] = useState({
+    const initialInputs = {
         title: '',
         link: '',
         source: '',
         company_name: '',
         website: '',
         status: '',
-    });
+    }
+    const [inputs, setInput] = useState(initialInputs);
     const [applications, setApplications] = useState([]);
 
     async function fetchUser() {
@@ -20,11 +21,16 @@ function ApplicationForm() {
     }
 
     useEffect(() => {
+        console.log('in useEffect');
         fetchUser();
     }, [])
 
     function handleChange(evt) {
         setInput({...inputs, [evt.target.name]: evt.target.value});
+    }
+
+    function clearFields() {
+        setInput(initialInputs)
     }
 
     async function handleSubmit(evt) {
@@ -37,6 +43,8 @@ function ApplicationForm() {
             .then(console.log('posted new application'))
             ;
         fetchUser();
+        clearFields();
+
     }
 
     return (
