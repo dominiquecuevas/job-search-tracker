@@ -83,7 +83,21 @@ def new_application():
         'status': application_status.status,
     })
     
-    
+@app.route('/new-application-status', methods=['POST'])
+@login_required
+def new_application_status():
+    application_id = request.form.get('application_id')
+    application = Application.query.get(application_id)
+    user = application.user
+    if user == current_user:
+        new_status = request.form.get('new_status')
+        application_status = ApplicationStatus(status=new_status)
+        application.application_statuses.append(application_status)
+        db.session.add(application_status)
+        db.session.commit()
+        # TODO: add pointentry
+        return jsonify({'application_status': application_status.status})
+
 
 @app.route('/logout')
 @login_required
