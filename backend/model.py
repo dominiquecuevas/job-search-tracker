@@ -44,6 +44,7 @@ class ApplicationStatus(db.Model):
     point_entry = db.relationship('PointEntry',
                                     back_populates='application_status', 
                                     uselist=False)
+    # TODO: init time
 
 class JournalEntry(db.Model):
     """table for journal entries for an application"""
