@@ -2,26 +2,27 @@ import React from "react"
 import {useState} from "react"
 
 function StatusChange(props) {
-    const [status, setStatus] = useState(props.current_status);
+    const [new_status, setStatus] = useState(props.new_status);
     function handleChange(evt) {
         setStatus(evt.target.value);
-        console.log(props.application_id, "new status state:", status);
+        console.log(props.application_id, "new status state:", new_status);
     }
     async function handleSubmit(evt) {
         evt.preventDefault();
-        console.log(props.application_id, "new status state:", status);
+        console.log(props.application_id, "new status state:", new_status);
         const formData = new FormData();
-        formData.append('new_status', status);
+        formData.append('new_status', new_status);
         formData.append('application_id', props.application_id);
         console.log(...formData);
         await fetch('/new-application-status',
             {method: 'POST',
             body: formData})
-            .then(console.log('posted new status'));
+            .then(console.log('posted new status'))
+            .then(props.fetchUser);
     }
     return (
         <form id="change-status" onSubmit={handleSubmit} method="POST">
-            <select name="status" value={status} onChange={handleChange}>
+            <select name="status" value={new_status} onChange={handleChange}>
                 <option value="Pending Referral">Pending Referral</option>
                 <option value="Applied">Applied</option>
                 <option value="Phone interviewed">Phone interviewed</option>
@@ -42,8 +43,11 @@ function Applications(props) {
                     <details key={application.application_id}>
                         <summary>{application.job.title} - {application.job.company.company_name}</summary>
                         <p>Applied: {Date(application.datetime_applied)}</p>
-                        <p>Current Status: {application.application_statuses[0].status}</p>
-                        <StatusChange current_status={application.application_statuses[0].status} application_id={application.application_id}/>
+                        <p>Current Status: <StatusChange 
+                            new_status={application.application_statuses[0].status} 
+                            application_id={application.application_id}
+                            fetchUser={props.fetchUser}/>
+                        </p>
                         <details>
                             <summary>Status History</summary>
                             {application.application_statuses.map((application_status) => 
