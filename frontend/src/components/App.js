@@ -2,6 +2,7 @@ import React from "react"
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import Login from './Login'
 import ApplicationForm from './ApplicationForm'
+import ApplicationPage from './ApplicationPage'
 
 class App extends React.Component {
     render() {
@@ -10,7 +11,7 @@ class App extends React.Component {
                 <Login />
                 <Switch>
                     <Route exact path='/applications' 
-                        render={() => <ApplicationForm /> }
+                        render={() => <ApplicationPage /> }
                     />
                 </Switch>
             </Router>
