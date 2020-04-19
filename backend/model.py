@@ -14,7 +14,7 @@ class Application(db.Model):
     application_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
     job_id = db. Column(db.Integer, db.ForeignKey('jobs.job_id'), nullable=True)
-    datetime_applied = db.Column(db.DateTime, nullable=True)
+    datetime_applied = db.Column(db.DateTime, nullable=True, default=datetime.now())
     referred_by = db.Column(db.VARCHAR(length=1000), nullable=True)
     datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
 
