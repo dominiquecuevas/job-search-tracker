@@ -43,11 +43,10 @@ function Applications(props) {
                     <details key={application.application_id}>
                         <summary>{application.job.title} - {application.job.company.company_name}</summary>
                         <p>Applied: {Date(application.datetime_applied)}</p>
-                        <p>Current Status: <StatusChange 
+                        Current Status: <StatusChange 
                             new_status={application.application_statuses[0].status} 
                             application_id={application.application_id}
                             fetchUser={props.fetchUser}/>
-                        </p>
                         <details>
                             <summary>Status History</summary>
                             {application.application_statuses.map((application_status) => 
