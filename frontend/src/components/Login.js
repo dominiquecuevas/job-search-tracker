@@ -1,5 +1,5 @@
 import React from "react"
-import {useState} from "react"
+import {useState, useEffect} from "react"
 import Alert from "react-bootstrap/Alert"
 import Modal from "react-bootstrap/Modal"
 import Form from "react-bootstrap/Form"
@@ -10,6 +10,7 @@ function Login() {
     const [password, setPassword] = useState("");
     const [show, setShow] = useState(false);
     const [validated, setValidated] = useState(false);
+    const [loggedIn, setLoggedIn] = useState("");
 
     const handleClose = () => {
         setShow(false);
@@ -36,19 +37,48 @@ function Login() {
             {method: 'POST',
             body: formData,})
             .then(resp => {
-                console.log(resp);
+                console.log('in handleSubmit login', resp);
                 if (!resp.ok) {
                     setValidated(true);
                 } else {
                     handleClose();
+                    setLoggedIn(true);
                 }
             })
+            // TODO: logged in alert
             ;
     }
+
+    function logOut(evt) {
+        evt.preventDefault();
+        fetch('/logout');
+        setLoggedIn(false);
+        // TODO: modal and alert
+    }
+
+    function loginCheck() {
+        fetch('/login-check')
+        .then(resp => resp.json())
+        .then(resp => {
+            console.log('in LoginCheck, resp:', resp);
+            if (resp === false) {
+                setLoggedIn(false);
+                console.log('loggedIn state should be false:', loggedIn);
+            } else if (resp === true) {
+                setLoggedIn(true);
+                console.log('loggedIn state should be true:', loggedIn);
+            }
+        })
+    }
+
+    useEffect(() => {
+        loginCheck()
+    }, [])
     
     return (
         <div>
-            <a href="#" onClick={handleShow}>Login</a>
+            {loggedIn === '' ? ('') : 
+                (!loggedIn ? (<a href="#" onClick={handleShow}>Login</a>) : (<a href="#" onClick={logOut}>Logout</a>))}
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Log-in</Modal.Title>
@@ -71,11 +101,6 @@ function Login() {
                         </Button>
                     </Form>
                 </Modal.Body>
-                    {/* <form onSubmit={handleSubmit} id="login-form" method="POST">
-                        Email <input type="text" value={email} onChange={handleChange} name='email' />
-                        Password <input type="password" value={password} onChange={handleChange} name='password' />
-                        <input type="submit" />
-                    </form> */}
             </Modal>
             {/* <Alert variant="success">
                 <Alert.Heading>Hey, nice to see you</Alert.Heading>
