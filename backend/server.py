@@ -33,6 +33,14 @@ def log_in_user():
         flash('Your email or password was incorrect')
     # return redirect('/')
 
+@app.route('/login-check')
+def login_check():
+    print('current_user:', current_user)
+    if current_user.is_authenticated:
+        return jsonify(True)
+    else:
+        return jsonify(False)
+
 @app.route('/new-application', methods=['POST'])
 @login_required
 def new_application():
