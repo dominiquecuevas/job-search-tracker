@@ -16,8 +16,16 @@ function ApplicationPage() {
     const [applications, setApplications] = useState([]);
 
     async function fetchUser() {
-        const result = await fetch('/user');
-        const user = await result.json();
+        const user = await fetch('/user')
+        .then(function(resp) {
+            console.log('in resp function');
+            console.log(resp);
+            if (resp.status === 401) {
+                throw Error('Need to log-in!' + ' - ' + resp.status + ' - ' + resp.statusText)
+            } else {
+                return resp.json();
+            }
+        })
         setApplications(user.applications);
     }
 
