@@ -1,10 +1,26 @@
 import React from "react"
 import {useState} from "react"
 import Alert from "react-bootstrap/Alert"
+import Modal from "react-bootstrap/Modal"
+import Form from "react-bootstrap/Form"
+import Button from "react-bootstrap/Button"
 
 function Login() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [show, setShow] = useState(false);
+    const [validated, setValidated] = useState(false);
+
+    const handleClose = () => {
+        setShow(false);
+        setValidated(false);
+        setEmail("");
+        setPassword("");
+    }
+    const handleShow = (evt) => {
+        evt.preventDefault();
+        setShow(true);
+    }
 
     function handleChange(evt) {
         if (evt.target.name==='email') {
@@ -15,24 +31,52 @@ function Login() {
     }
     function handleSubmit(evt) {
         evt.preventDefault();
-        console.log('before fetch');
         const formData = new FormData(document.getElementById('login-form'));
         fetch('/login', 
             {method: 'POST',
             body: formData,})
-            .then(console.log('logged in'))
+            .then(resp => {
+                console.log(resp);
+                if (!resp.ok) {
+                    setValidated(true);
+                } else {
+                    handleClose();
+                }
+            })
             ;
-        // TODO: research how to get response from server ^^
-        console.log('after fetch');
     }
     
     return (
         <div>
-            <form onSubmit={handleSubmit} id="login-form" method="POST">
-                Email <input type="text" value={email} onChange={handleChange} name='email' />
-                Password <input type="password" value={password} onChange={handleChange} name='password' />
-                <input type="submit" />
-            </form>
+            <a href="#" onClick={handleShow}>Login</a>
+            <Modal show={show} onHide={handleClose}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Log-in</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form onSubmit={handleSubmit} id="login-form" method="POST">
+                        <Form.Group controlId="formBasicEmail">
+                            <Form.Label>Email address</Form.Label>
+                            <Form.Control type="email" placeholder="Enter email" value={email} onChange={handleChange} name='email'/>
+                        </Form.Group>
+                        <Form.Group controlId="formBasicPassword">
+                            <Form.Label>Password</Form.Label>
+                            <Form.Control type="password" placeholder="Password" value={password} onChange={handleChange} name='password'/>
+                        </Form.Group>
+                        {validated && (<Form.Text className="text-muted">
+                            Incorrect email address or password, try again.
+                        </Form.Text>)}
+                        <Button variant="primary" type="submit">
+                            Submit
+                        </Button>
+                    </Form>
+                </Modal.Body>
+                    {/* <form onSubmit={handleSubmit} id="login-form" method="POST">
+                        Email <input type="text" value={email} onChange={handleChange} name='email' />
+                        Password <input type="password" value={password} onChange={handleChange} name='password' />
+                        <input type="submit" />
+                    </form> */}
+            </Modal>
             {/* <Alert variant="success">
                 <Alert.Heading>Hey, nice to see you</Alert.Heading>
                 <p>
