@@ -11,7 +11,7 @@ function Login() {
     const [show, setShow] = useState(false);
     const [validated, setValidated] = useState(false);
     const [loggedIn, setLoggedIn] = useState("");
-    const [AlertLogOutshow, setAlertLogOutShow] = useState(false);
+    const [AlertLogOutShow, setAlertLogOutShow] = useState(false);
 
     const handleClose = () => {
         setShow(false);
@@ -51,7 +51,7 @@ function Login() {
     }
     function AlertLogOut() {
       
-        if (AlertLogOutshow) {
+        if (AlertLogOutShow) {
           return (
             <Alert variant="danger" onClose={() => setAlertLogOutShow(false)} dismissible>
               {/* <Alert.Heading>Oh snap! You got an error!</Alert.Heading> */}
