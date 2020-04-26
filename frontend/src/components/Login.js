@@ -11,6 +11,7 @@ function Login() {
     const [show, setShow] = useState(false);
     const [validated, setValidated] = useState(false);
     const [loggedIn, setLoggedIn] = useState("");
+    const [AlertLogOutshow, setAlertLogOutShow] = useState(false);
 
     const handleClose = () => {
         setShow(false);
@@ -48,12 +49,27 @@ function Login() {
             // TODO: logged in alert
             ;
     }
+    function AlertLogOut() {
+      
+        if (AlertLogOutshow) {
+          return (
+            <Alert variant="danger" onClose={() => setAlertLogOutShow(false)} dismissible>
+              {/* <Alert.Heading>Oh snap! You got an error!</Alert.Heading> */}
+              <p>
+                Successfully logged out!
+              </p>
+            </Alert>
+          );
+        }
+        return null;
+      }
+    
 
     function logOut(evt) {
         evt.preventDefault();
         fetch('/logout');
         setLoggedIn(false);
-        // TODO: modal and alert
+        setAlertLogOutShow(true);
     }
 
     function loginCheck() {
@@ -79,6 +95,7 @@ function Login() {
         <div>
             {loggedIn === '' ? ('') : 
                 (!loggedIn ? (<a href="#" onClick={handleShow}>Login</a>) : (<a href="#" onClick={logOut}>Logout</a>))}
+            <AlertLogOut />
             <Modal show={show} onHide={handleClose}>
                 <Modal.Header closeButton>
                     <Modal.Title>Log-in</Modal.Title>
