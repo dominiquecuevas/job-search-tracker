@@ -25,7 +25,7 @@ function ApplicationPage() {
             } else {
                 return resp.json();
             }
-        })
+        });
         setApplications(user.applications);
     }
 

@@ -1,5 +1,6 @@
 import React from "react"
 import {useState} from "react"
+import moment from "moment"
 
 function StatusChange(props) {
     const [new_status, setStatus] = useState(props.new_status);
@@ -42,7 +43,7 @@ function Applications(props) {
                 application => (
                     <details key={application.application_id}>
                         <summary>{application.job.title} - {application.job.company.company_name}</summary>
-                        <p>Applied: {Date(application.datetime_applied)}</p>
+                        <p>Applied: {moment(application.datetime_applied).toString()}</p>
                         Current Status: <StatusChange 
                             new_status={application.application_statuses[0].status} 
                             application_id={application.application_id}
@@ -50,7 +51,7 @@ function Applications(props) {
                         <details>
                             <summary>Status History</summary>
                             {application.application_statuses.map((application_status) => 
-                            <p key={application_status.application_status_id}>{application_status.datetime_created} - {application_status.status}</p>)}
+                            <p key={application_status.application_status_id}>{moment(application_status.datetime_created).toString()} - {application_status.status}</p>)}
                         </details>
                         <p>Source: {application.job.source}</p>
                         <p>Link: <a 
