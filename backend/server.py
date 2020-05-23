@@ -99,12 +99,21 @@ def new_application_status():
     user = application.user
     if user == current_user:
         new_status = request.form.get('new_status')
-        application_status = ApplicationStatus(status=new_status)
-        application.application_statuses.append(application_status)
-        db.session.add(application_status)
+        new_application_status = ApplicationStatus(status=new_status)
+        application.application_statuses.append(new_application_status)
+        db.session.add(new_application_status)
+
+        new_point_entry = PointEntry()
+        new_point_entry.application_status = new_application_status
+        point_entry_type = db.session.query(PointEntryType)\
+            .filter(PointEntryType.point_entry_type_code=='uas')\
+            .first()
+        new_point_entry.points = point_entry_type.points
+        point_entry_type.point_entries.append(new_point_entry)
+        db.session.add(new_point_entry)
         db.session.commit()
-        # TODO: add pointentry
-        return jsonify({'application_status': application_status.status})
+        return jsonify({'application_status': new_application_status.status,
+            'point_entry_type_code': new_point_entry.point_entry_type.point_entry_type_code})
 
 
 @app.route('/logout')
