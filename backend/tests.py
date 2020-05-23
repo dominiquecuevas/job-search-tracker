@@ -11,7 +11,8 @@ class FlaskTestsDatabase(TestCase):
         connect_to_db(app, 'postgresql:///jobstestdb')
 
         db.create_all()
-        seed()
+        seed()  # seeds in 2 Applications, PointEntry, etc. see model for more.
+        # TODO: reduce seed data in exchange for tests
         self.client.post('/login',
             data={'email': 'email@email.com', 'password': 'password'},
             follow_redirects=True
@@ -76,7 +77,7 @@ class FlaskTestsDatabase(TestCase):
         )
         self.assertIn(b'My Company', result.data)
         num_companies = len(Company.query.all())
-        self.assertEqual(num_companies, 2)
+        self.assertEqual(num_companies, 2)  # 2 existing companies from seed()
 
         # new application with existing company and job
         result = self.client.post('/new-application', 
@@ -91,9 +92,14 @@ class FlaskTestsDatabase(TestCase):
         )
         self.assertIn(b'Another Company', result.data)
         num_jobs = len(Job.query.all())
-        self.assertEqual(num_jobs, 3)
+        self.assertEqual(num_jobs, 4)  # 2 existing application from seed() + 2 more tests
 
-
+    def test_point_entry_on_application_status_change(self):
+        result = self.client.post('/new-application-status',
+            data={'new_status': 'Applied',
+            'application_id': 1}
+        )
+        self.assertIn(b'uas', result.data)
 
 if __name__ == "__main__":
     import unittest
