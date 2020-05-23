@@ -114,6 +114,7 @@ class PointEntry(db.Model):
     __tablename__ = 'point_entries'
 
     point_entry_id = db.Column(db.Integer, autoincrement=True, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=True)
     application_status_id = db.Column(db.Integer, db.ForeignKey('application_statuses.application_status_id'), unique=True, nullable=True)
     application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
     point_entry_type_id = db.Column(db.Integer, db.ForeignKey('point_entry_types.point_entry_type_id'), nullable=True)
@@ -127,6 +128,8 @@ class PointEntry(db.Model):
                                     backref='point_entries')
     point_entry_type = db.relationship('PointEntryType',
                                         backref='point_entries')
+    user = db.relationship('User',
+                            backref='point_entries')
 
 class PointEntryType(db.Model):
     """Different ways to earn points"""

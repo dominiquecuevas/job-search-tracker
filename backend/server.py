@@ -105,6 +105,7 @@ def new_application_status():
 
         new_point_entry = PointEntry()
         new_point_entry.application_status = new_application_status
+        new_point_entry.user = current_user
         point_entry_type = db.session.query(PointEntryType)\
             .filter(PointEntryType.point_entry_type_code=='uas')\
             .first()
@@ -126,6 +127,11 @@ def log_out_user():
 @login_required
 def user():
     user = current_user
+    point_entries = user.point_entries
+    user.points_total = 0
+    for point_entry in point_entries:
+        user.points_total += point_entry.points
+    db.session.commit()
     return jsonify({
         'user_id': user.user_id,
         'email': user.email,
