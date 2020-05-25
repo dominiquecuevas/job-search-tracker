@@ -16,7 +16,7 @@ afterEach(() => {
     container = null;
 })
 
-it("renders", () => {
+it("renders application form", () => {
     act(() => {
         render(<ApplicationForm 
             handleChange={() => {}}
