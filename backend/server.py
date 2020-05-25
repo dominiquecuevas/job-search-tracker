@@ -83,6 +83,7 @@ def new_application():
     job.applications.append(application)
     application.application_statuses.append(application_status)
     db.session.commit()
+    # TODO: point entry for new application
 
     return jsonify({
         'application_id': application.application_id,
