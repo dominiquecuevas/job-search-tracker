@@ -1,6 +1,5 @@
 import React from "react"
 import {useState} from "react"
-import moment from "moment"
 
 function ApplicationsStatusChange(props) {
     const [new_status, setStatus] = useState(props.new_status);
