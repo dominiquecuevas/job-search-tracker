@@ -1,8 +1,8 @@
-import React from "react"
-import { render, unmountComponentAtNode } from "react-dom"
-import { act } from "react-dom/test-utils"
+import React from "react";
+import { render, unmountComponentAtNode } from "react-dom";
+import { act } from "react-dom/test-utils";
 
-import Applications from "./Applications"
+import Applications from "./Applications";
 
 const applications = [
     {
