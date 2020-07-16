@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, session, request, flash
+from flask import Flask, jsonify, session, request, flash, Response
 import time
 from model import db, connect_to_db, \
                     Application, ApplicationStatus, Job, Company, JournalEntry, \
@@ -30,8 +30,7 @@ def log_in_user():
         login_user(user)
         return jsonify({'message':'logged in'})
     else:
-        flash('Your email or password was incorrect')
-    # return redirect('/')
+        return Response(status=401)
 
 @app.route('/login-check')
 def login_check():
