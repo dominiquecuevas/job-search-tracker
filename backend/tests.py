@@ -1,6 +1,6 @@
 from unittest import TestCase
 from server import app
-from model import connect_to_db, db, seed, seed_types, User, Company, Job
+from model import connect_to_db, db, seed, seed_types, User, Company, Job, Application
 
 class FlaskTestsDatabase(TestCase):
 
@@ -11,8 +11,7 @@ class FlaskTestsDatabase(TestCase):
         connect_to_db(app, 'postgresql:///jobstestdb')
 
         db.create_all()
-        # seed_types()
-        # seed()  # seeds in 2 Applications, PointEntry, etc. see model for more.
+
         seed_types()
         user = User(email='email@email.com', 
             password='password', 
@@ -47,6 +46,44 @@ class FlaskTestsDatabase(TestCase):
             follow_redirects=True
         )
         self.assertEqual(result.status_code, 401)
+
+    def test_new_application(self):
+        result = self.client.post('/new-application',
+            data={'company_name': 'Company Name',
+                  'website': 'https://www.company.com',
+                  'title': 'Title',
+                  'link': 'https://www.link.com',
+                  'source': 'LinkedIn',
+                  'status': 'Applied'
+            }
+        )
+        self.assertEqual(result.status_code, 200)
+
+        self.client.post('/new-application',
+            data={'company_name': 'Second Company',
+                  'website': 'https://www.secondcompany.com',
+                  'title': 'Title',
+                  'link': 'https://www.link.com',
+                  'source': 'LinkedIn',
+                  'status': 'Applied'
+            }
+        )
+        self.client.post('/new-application',
+            data={'company_name': 'Second Company',
+                'website': 'https://www.secondcompany.com',
+                'title': 'Second Title',
+                'link': 'https://www.secondlink.com',
+                'source': 'LinkedIn',
+                'status': 'Applied'
+            }
+        )
+        result = db.session.query(Application).all()
+        self.assertEqual(len(result), 3)
+        result = db.session.query(Company).all()
+        self.assertEqual(len(result), 2)
+        result = db.session.query(Job).all()
+        self.assertEqual(len(result), 3)
+
 
     # def test_application(self):
     #     result = self.client.get('/application/1')
