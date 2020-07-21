@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, session, request, flash, Response
-import time
+from datetime import datetime
 from model import db, connect_to_db, \
                     Application, ApplicationStatus, Job, Company, JournalEntry, \
                     User, PointEntry, PointEntryType, Badge, BadgeType
@@ -53,7 +53,7 @@ def new_application():
     # application status attributes
     status = request.form.get('status')
 
-    application = Application()
+    application = Application(datetime_created=datetime.now())
     db.session.add(application)
 
     company = db.session.query(Company) \
@@ -70,12 +70,12 @@ def new_application():
         .filter(Job.title==title, Job.link==link, Job.source==source, Job.company==company) \
         .first()
     if not job:
-        job = Job(title=title, link=link, source=source)
+        job = Job(title=title, link=link, source=source, datetime_created=datetime.now())
         db.session.add(job)
         company.jobs.append(job)
         db.session.commit()
     
-    application_status = ApplicationStatus(status=status)
+    application_status = ApplicationStatus(status=status, datetime_created=datetime.now())
     db.session.add(application_status)
 
     current_user.applications.append(application)
@@ -99,7 +99,7 @@ def new_application_status():
     user = application.user
     if user == current_user:
         new_status = request.form.get('new_status')
-        new_application_status = ApplicationStatus(status=new_status)
+        new_application_status = ApplicationStatus(status=new_status, datetime_created=datetime.now())
         application.application_statuses.append(new_application_status)
         db.session.add(new_application_status)
 
@@ -342,6 +342,8 @@ def get_badge_types(badge_type_id):
     return jsonify({
         'badge_type': badge_type.badge_type
     })
+
+# TODO: new journal entry
 
 if __name__ == "__main__":
     connect_to_db(app)

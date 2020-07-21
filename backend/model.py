@@ -16,7 +16,7 @@ class Application(db.Model):
     job_id = db. Column(db.Integer, db.ForeignKey('jobs.job_id'), nullable=True)
     datetime_applied = db.Column(db.DateTime, nullable=True, default=datetime.now())
     referred_by = db.Column(db.VARCHAR(length=1000), nullable=True)
-    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
+    datetime_created = db.Column(db.DateTime, nullable=True)
 
     user = db.relationship('User', 
                             backref='applications')
@@ -37,7 +37,7 @@ class ApplicationStatus(db.Model):
     application_id = db.Column(db.Integer, db.ForeignKey('applications.application_id'), nullable=True)
     status = db.Column(db.VARCHAR(length=1000), nullable=True)
     experience_rating = db.Column(db.VARCHAR(length=1000), nullable=True)
-    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
+    datetime_created = db.Column(db.DateTime, nullable=True)
 
     application = db.relationship('Application',
                                     back_populates='application_statuses')
@@ -69,7 +69,7 @@ class Job(db.Model):
     title = db.Column(db.VARCHAR(length=1000), nullable=False)
     link = db.Column(db.VARCHAR(length=1000), nullable=False)
     source = db.Column(db.VARCHAR(length=1000), nullable=False)
-    datetime_created = db.Column(db.DateTime, nullable=True, default=datetime.now())
+    datetime_created = db.Column(db.DateTime, nullable=True)
 
     company = db.relationship('Company', 
                                 backref='jobs')
