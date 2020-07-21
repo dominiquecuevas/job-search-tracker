@@ -53,7 +53,7 @@ def new_application():
     # application status attributes
     status = request.form.get('status')
 
-    application = Application(datetime_created=datetime.now())
+    application = Application()
     db.session.add(application)
 
     company = db.session.query(Company) \
@@ -70,12 +70,12 @@ def new_application():
         .filter(Job.title==title, Job.link==link, Job.source==source, Job.company==company) \
         .first()
     if not job:
-        job = Job(title=title, link=link, source=source, datetime_created=datetime.now())
+        job = Job(title=title, link=link, source=source)
         db.session.add(job)
         company.jobs.append(job)
         db.session.commit()
     
-    application_status = ApplicationStatus(status=status, datetime_created=datetime.now())
+    application_status = ApplicationStatus(status=status)
     db.session.add(application_status)
 
     current_user.applications.append(application)
@@ -99,7 +99,7 @@ def new_application_status():
     user = application.user
     if user == current_user:
         new_status = request.form.get('new_status')
-        new_application_status = ApplicationStatus(status=new_status, datetime_created=datetime.now())
+        new_application_status = ApplicationStatus(status=new_status)
         application.application_statuses.append(new_application_status)
         db.session.add(new_application_status)
 

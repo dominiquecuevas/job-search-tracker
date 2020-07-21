@@ -25,6 +25,9 @@ class Application(db.Model):
     application_statuses = db.relationship('ApplicationStatus',
                             lazy='dynamic',
                             back_populates='application')
+    
+    def __init__(self):
+        self.datetime_created = datetime.now()
 
     # TODO: look into cascade deletion
 
@@ -44,6 +47,10 @@ class ApplicationStatus(db.Model):
     point_entry = db.relationship('PointEntry',
                                     back_populates='application_status', 
                                     uselist=False)
+
+    def __init__(self, status):
+        self.status = status
+        self.datetime_created = datetime.now()
     # TODO: init time
 
 class JournalEntry(db.Model):
@@ -70,6 +77,12 @@ class Job(db.Model):
     link = db.Column(db.VARCHAR(length=1000), nullable=False)
     source = db.Column(db.VARCHAR(length=1000), nullable=False)
     datetime_created = db.Column(db.DateTime, nullable=True)
+
+    def __init__(self, title, link, source):
+        self.title = title
+        self.link = link
+        self.source = source
+        self.datetime_created = datetime.now()
 
     company = db.relationship('Company', 
                                 backref='jobs')
