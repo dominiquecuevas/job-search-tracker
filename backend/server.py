@@ -19,6 +19,14 @@ def load_user(email):
 
     return db.session.query(User).filter(User.email==email).first()
 
+@app.route('/register', methods=['POST'])
+def register():
+    email = request.form.get('email')
+    password = request.form.get('password')
+    user = db.session.query(User) \
+        .filter(User.email==email,User.password==password) \
+        .all()
+
 @app.route('/login', methods=['POST'])
 def log_in_user():
     """Log in a user."""
